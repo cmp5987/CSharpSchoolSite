@@ -1,0 +1,148 @@
+﻿@model Project3.ViewModels.DegreeViewModel
+
+@functions{
+    public bool removeUnwanted(String value)
+    {
+        return value != "graduate advanced certificates";
+    }
+}
+<h2>@Model.Title</h2>
+
+<div class="makeFlex majors-content">
+    @foreach (var under in Model.UnderGrads)
+    {
+        <div class="card majorCard" >
+            <div class="card-header majorHeader">
+                <h5 class="card-title">@under.title</h5>
+                <h6 class="class-subtitle">Undergraduate Program</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    @under.description
+                </p>
+            </div>
+            <button class="seeConcentrationBtn" id=@String.Concat(under.degreeName) onclick="displayUnderGradDialog(id)">See Concentrations</button>
+        </div>
+    }
+    @foreach (var graduate in Model.Graduates)
+    {
+        <div class="card majorCard" style="display:@(removeUnwanted(graduate.degreeName) ? "flex" : "none")">
+            <div class="card-header majorHeader">
+                <h5 class="card-title">@graduate.title</h5>
+                <h6 class="class-subtitle">Graduate</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    @graduate.description
+                </p>
+            </div>
+            <button class="seeConcentrationBtn"  id=@String.Concat(graduate.degreeName)  onclick="displayGradDialog(id)">See Concentrations</button>
+        </div>
+    }
+</div>
+<div id="dialog"></div>
+<footer>
+    <div class="container">
+        <div class="container-fluid text-center text-md-left">
+            <!-- Grid row -->
+            <div class="row">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mt-md-0 mt-3">
+                    <!-- Content -->
+                    <img src="~/images/RIT_1505C_hor.jpg" alt="Long logo for RIT">
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none pb-3">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Helpful Links</h5>
+                    <ul class="list-unstyled" id="helpfulLinks">
+                        @foreach (var quicklink in Model.FooterInfo.quickLinks)
+                        {
+                            <li><a href=@quicklink.href>@quicklink.title</a></li>
+                        }
+                    </ul>
+                </div>
+                <!-- Grid column -->
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Social Media</h5>
+                    <ul class="list-unstyled" id="socialMedia">
+                        <li><a href=@Model.FooterInfo.social.twitter>Twitter</a></li>
+                        <li><a href="@Model.FooterInfo.social.facebook">Facebook</a></li>
+                    </ul>
+                </div>
+                <!-- Grid column -->
+            </div>
+            <!-- Grid row -->
+        </div>
+        <!-- Footer Links -->
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3" id="copyright"></div>
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" href="~/lib/jqueryui/themes/ui-darkness/jquery-ui.min.css">
+<script src="~/lib/jqueryui/jquery-ui.js"></script>
+<script>
+    var $j = jQuery.noConflict();
+    var undergradData = @Html.Raw(Json.Serialize(Model.UnderGrads));
+    var gradData = @Html.Raw(Json.Serialize(Model.Graduates));
+
+    var footInfo = @Html.Raw(Json.Serialize(@Model.FooterInfo));
+    $j("#copyright").append(footInfo.copyright.html);
+
+    function displayGradDialog(degreeName) {
+        var grad = gradData.filter(item => item.degreeName == degreeName)[0];
+        let elmnt = document.getElementById(degreeName);
+
+        var divContent = "<div><ul class='list-group list-group-flush bg-'>";
+
+        $j.each(grad.concentrations, function (index, value) {
+            divContent += '<li class="list-group-item concentration" style="color:#000000">';
+            divContent += value;
+            divContent += '</li>';
+        });
+
+        divContent += "</ul></div>";
+
+        $j("#dialog").html(divContent);
+        $j("#dialog").dialog({
+            title: grad.title,
+            width: 500,
+            position: { my: "center", at: "bottom+40%", of: elmnt }
+        });
+        $j("#dialog").dialog("open");
+    }
+    function displayUnderGradDialog(degreeName) {
+        var under = undergradData.filter(item => item.degreeName == degreeName )[0];
+        let elmnt = document.getElementById(degreeName);
+
+        var divContent = "<div><ul class='list-group list-group-flush bg-'>";
+
+        $j.each(under.concentrations, function (index, value) {
+            divContent += '<li class="list-group-item concentration" style="color:#000000">';
+            divContent += value;
+            divContent += '</li>';
+        });
+
+        divContent += "</ul></div>";
+
+        $j("#dialog").html(divContent);
+        $j("#dialog").dialog({
+            title: under.title,
+            width: 500,
+            position: { my: "center", at: "bottom+40%", of: elmnt }
+        });
+        $j("#dialog").dialog("open");
+    }
+
+
+
+</script>

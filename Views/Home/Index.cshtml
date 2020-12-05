@@ -1,0 +1,77 @@
+﻿@model Project3.ViewModels.IndexViewModel
+<div id="homepageImage">
+    <img src="~/images/slide_2.jpg" />
+</div>
+<h2>@Model.Title</h2>
+<div id="index-content">
+    <div>
+        <h3>@Model.AboutInfo.title</h3>
+        <p>@Model.AboutInfo.description</p>
+        <div id="quote">
+            <p>"@Model.AboutInfo.quote"</p>
+            <h6>@Model.AboutInfo.quoteAuthor</h6>
+        </div>
+
+    </div>
+</div>
+<div id="news">
+    <h2>Recent News</h2>
+    <div id="tweets" class="">
+        <!-- API request to twitter for twitter data-->
+        <a class="twitter-timeline" data-tweet-limit="3" href="https://twitter.com/RITNEWS?ref_src=twsrc%5Etfw">Tweets by RITNEWS</a>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </div>
+</div>
+<hr />
+<footer>
+    <div class="container">
+        <div class="container-fluid text-center text-md-left">
+            <!-- Grid row -->
+            <div class="row">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mt-md-0 mt-3">
+                    <!-- Content -->
+                    <img src="~/images/RIT_1505C_hor.jpg" alt="Long logo for RIT">
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none pb-3">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Helpful Links</h5>
+                    <ul class="list-unstyled" id="helpfulLinks">
+                        @foreach (var quicklink in Model.FooterInfo.quickLinks)
+                        {
+                            <li><a href=@quicklink.href>@quicklink.title</a></li>
+                        }
+                    </ul>
+                </div>
+                <!-- Grid column -->
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Social Media</h5>
+                    <ul class="list-unstyled" id="socialMedia">
+                        <li><a href=@Model.FooterInfo.social.twitter>Twitter</a></li>
+                        <li><a href="@Model.FooterInfo.social.facebook">Facebook</a></li>
+                    </ul>
+                </div>
+                <!-- Grid column -->
+            </div>
+            <!-- Grid row -->
+        </div>
+        <!-- Footer Links -->
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3" id="copyright"></div>
+    </div>
+</footer>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    var $j = jQuery.noConflict();
+    var footInfo = @Html.Raw(Json.Serialize(@Model.FooterInfo));
+    $j("#copyright").append(footInfo.copyright.html);
+
+</script>

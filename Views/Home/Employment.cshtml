@@ -1,0 +1,150 @@
+﻿@model Project3.ViewModels.EmploymentViewModel
+
+<div id="index-content">
+    <div id="schoolStatistics" class="container-fluid d-flex flex-column align-items-center text-light bg-dark">
+        <h2>@Model.DegreeStatistics.title</h2>
+        <div id="schoolStatistics-content" class="makeFlex">
+            @foreach (var stat in Model.DegreeStatistics.statistics)
+            {
+                <div class="card statisticCard">
+                    <div class="card-body">
+                        <h5 class="card-title" style="text-align='center'">@stat.value</h5>
+                        <p class="card-text">@stat.Description</p>
+                    </div>
+                </div>
+            }
+        </div>
+        <div id="schoolStatistics-spinner"></div>
+    </div>
+</div>
+
+<div id="map" class="makeFlex">
+    <h2>Employment Map</h2>
+    <iframe class="d-block" scrolling="no" frameBorder="0" src="https://ist.rit.edu/api/map.php" runat=server></iframe>
+</div>
+
+<div id="coopIntro-content" class="banner">
+    <h1 class="banner-header">@Model.Introduction.content[1].title</h1>
+    <p class="banner-text">@Model.Introduction.content[1].description</p>
+</div>
+<table id="coopTable" class="display w-100"></table>
+
+<div id="employmentIntro-content" class="banner">
+    <h1 class="banner-header">@Model.Introduction.content[0].title</h1>
+    <p class="banner-text">@Model.Introduction.content[0].description</p>
+</div>
+<table id="employmentTable" class="display w-100 table-dark"></table>
+
+<footer>
+    <div class="container">
+        <div class="container-fluid text-center text-md-left">
+            <!-- Grid row -->
+            <div class="row">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mt-md-0 mt-3">
+                    <!-- Content -->
+                    <img src="~/images/RIT_1505C_hor.jpg" alt="Long logo for RIT">
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none pb-3">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Helpful Links</h5>
+                    <ul class="list-unstyled" id="helpfulLinks">
+                        @foreach (var quicklink in Model.FooterInfo.quickLinks)
+                        {
+                            <li><a href=@quicklink.href>@quicklink.title</a></li>
+                        }
+                    </ul>
+                </div>
+                <!-- Grid column -->
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Social Media</h5>
+                    <ul class="list-unstyled" id="socialMedia">
+                        <li><a href=@Model.FooterInfo.social.twitter>Twitter</a></li>
+                        <li><a href="@Model.FooterInfo.social.facebook">Facebook</a></li>
+                    </ul>
+                </div>
+                <!-- Grid column -->
+            </div>
+            <!-- Grid row -->
+        </div>
+        <!-- Footer Links -->
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3" id="copyright"></div>
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" href="~/lib/jqueryui/themes/ui-darkness/jquery-ui.min.css">
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
+<script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script>
+    var $j = jQuery.noConflict(true);
+
+    displayCoOpTable();
+    displayEmploymentTable();
+
+
+    var footInfo = @Html.Raw(Json.Serialize(@Model.FooterInfo));
+    $j("#copyright").append(footInfo.copyright.html);
+
+
+    function displayCoOpTable() {
+        var coopInfo = @Html.Raw(Json.Serialize(Model.CoopTable.coopInformation));
+        let coopArray = [];
+        let coopColumn = [];
+        let coopKeys = Object.keys(coopInfo[0]);
+
+        if (coopColumn.length === 0) {
+            coopColumn = $j.map(coopKeys, function (value, index) {
+                return { 'title': value };
+            });
+        }
+        $j.each(coopInfo, function (coopIndex, coopObject) {
+            let newRowArray = [];
+            $j.each(coopObject, function (index, value) {
+                newRowArray.push(value);
+            });
+            coopArray.push(newRowArray);
+        });
+
+        $j("#coopTable").DataTable({
+            "data": coopArray,
+            "columns": coopColumn,
+
+        });
+    }
+    function displayEmploymentTable() {
+        var employmentInfo = @Html.Raw(Json.Serialize(Model.EmploymentTable.professionalEmploymentInformation));
+        let employmentArray = [];
+        let employmentColumn = [];
+        let employmentKeys = Object.keys(employmentInfo[0]);
+
+        if (employmentColumn.length === 0) {
+            employmentColumn = $j.map(employmentKeys, function (value, index) {
+                return { 'title': value };
+            });
+        }
+        $j.each(employmentInfo, function (coopIndex, employmentObject) {
+            let newRowArray = [];
+            $j.each(employmentObject, function (index, value) {
+                newRowArray.push(value);
+            });
+            employmentArray.push(newRowArray);
+        });
+
+        $j("#employmentTable").DataTable({
+            "data": employmentArray,
+            "columns": employmentColumn,
+        });
+    }
+
+
+</script>

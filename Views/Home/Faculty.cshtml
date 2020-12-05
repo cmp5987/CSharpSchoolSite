@@ -1,0 +1,124 @@
+﻿@model Project3.ViewModels.FacultyViewModel
+
+@functions{
+    public bool validateString(String value)
+    {
+        return value != null && value != "";
+    }
+    public bool checkForResearch(String username, List<ByFaculty> byfaculties)
+    {
+        var results = byfaculties.Where(obj => obj.username == username);
+
+        return results.Any();
+    }
+}
+
+<h2>@Model.Title</h2>
+<div id="people" class="makeFlex">
+    @foreach (var faculty in Model.Faculty)
+    {
+        <div class="card facultyCard">
+            <div class="card-header facultyHeader">
+                <h5 class="card-title">@faculty.name</h5>
+                <h6 class="card-subtitle">@faculty.title</h6>
+            </div>
+            <div class="facultyImageDiv">
+                <img class="card-img-top facultyImage" src="@faculty.imagePath" alt="Card image cap">
+            </div>
+
+            <ul class="list-group list-group-flush bg-light">
+                <li class="list-group-item">@faculty.email</li>
+                <li class="list-group-item" style="display: @(validateString(faculty.office) ? "block" : "none")">@faculty.office</li>
+                <li class="list-group-item" style="display: @(validateString(faculty.phone) ? "block" : "none")">@faculty.phone</li>
+                <li class="list-group-item">Departments: @faculty.interestArea</li>
+            </ul>
+            <button class="btn btn-light researchBtn" style="display: @(checkForResearch(faculty.username, Model.ResearchByFaculty) ? "block" : "none")" id=@String.Concat(faculty.username) onclick="displayResearch(id)">See Research</button>
+        </div>
+     }
+</div>
+<div id="dialog"></div>
+<footer>
+    <div class="container">
+        <div class="container-fluid text-center text-md-left">
+            <!-- Grid row -->
+            <div class="row">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mt-md-0 mt-3">
+                    <!-- Content -->
+                    <img src="~/images/RIT_1505C_hor.jpg" alt="Long logo for RIT">
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none pb-3">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Helpful Links</h5>
+                    <ul class="list-unstyled" id="helpfulLinks">
+                        @foreach (var quicklink in Model.FooterInfo.quickLinks)
+                        {
+                            <li><a href=@quicklink.href>@quicklink.title</a></li>
+                        }
+                    </ul>
+                </div>
+                <!-- Grid column -->
+                <!-- Grid column -->
+                <div class="col-md-3 mb-md-0 mb-3 d-flex flex-column align-items-center">
+                    <!-- Links -->
+                    <h5 class="text-uppercase">Social Media</h5>
+                    <ul class="list-unstyled" id="socialMedia">
+                        <li><a href=@Model.FooterInfo.social.twitter>Twitter</a></li>
+                        <li><a href="@Model.FooterInfo.social.facebook">Facebook</a></li>
+                    </ul>
+                </div>
+                <!-- Grid column -->
+            </div>
+            <!-- Grid row -->
+        </div>
+        <!-- Footer Links -->
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3" id="copyright"></div>
+    </div>
+</footer>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="~/lib/jqueryui/themes/ui-darkness/jquery-ui.min.css">
+    <script src="~/lib/jqueryui/jquery-ui.js"></script>
+
+    <script>
+        var $j = jQuery.noConflict();
+        var researchData = @Html.Raw(Json.Serialize(Model.ResearchByFaculty));
+
+
+        var footInfo = @Html.Raw(Json.Serialize(@Model.FooterInfo));
+        $j("#copyright").append(footInfo.copyright.html);
+
+
+        function displayResearch(username) {
+            var facultyResearch = researchData.filter(item => item.username == username)[0];
+            var elmnt = document.getElementById(username);
+            var divContent = "<div><ul class='list-group list-group-flush bg-'>";
+
+            $j.each(facultyResearch.citations, function (index, value) {
+                divContent += '<li class="list-group-item citation" style="color:#000000">';
+                divContent += value;
+                divContent += '</li>';
+            });
+
+            divContent += "</ul></div>";
+
+            $j("#dialog").html(divContent);
+            $j("#dialog").dialog({
+                title: "Research by " + facultyResearch.facultyName,
+                width: 500,
+                position: { my: "center", at: "bottom+40%", of: elmnt }
+            });
+            $j("#dialog").dialog("open");
+        }
+
+
+
+    </script>
